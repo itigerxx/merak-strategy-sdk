@@ -1,0 +1,97 @@
+package merak:strategy@0.1.0;
+
+// quant-strategy.wit
+// WIT: types + host-provided platform + guest-implemented strategy + world definition
+
+///////////////////////////////////////////////////////////
+// Shared data types
+///////////////////////////////////////////////////////////
+
+interface types {
+    type timestamp = u64;
+    type order-id = string;
+
+    // Order request from strategy to host
+    record order-request {
+        symbol: string,
+        qty: f64,
+        price: option<f64>,
+        order-type: order-type,
+        side: side,
+        position-side: option<position-side>,
+        client-order-id: option<string>,
+        reduce-only: option<bool>,
+        time-in-force: option<time-in-force>,
+        stop-price: option<f64>,
+    }
+
+    // OHLCV kline 
+    record kline {
+        symbol: string,
+        open: f64,
+        high: f64,
+        low: f64,
+        close: f64,
+        volume: f64,
+        timestamp: timestamp,
+    }
+
+    // Position summary
+    record position {
+        symbol: string,
+        qty: f64,
+        avg-price: option<f64>,
+        unrealized-pnl: option<f64>,
+    }
+
+    enum order-type { market, limit, stop, stop-limit }
+    enum side { buy, sell }
+    enum position-side { long, short }
+    enum time-in-force { gtc, ioc, fok }
+}
+
+///////////////////////////////////////////////////////////
+// Host-provided platform interface
+///////////////////////////////////////////////////////////
+
+interface platform {
+    use types.{order-request, position, order-id};
+
+    resource platform {
+        place-order: func(req: order-request) -> order-id;
+        get-price: func(symbol: string) -> option<f64>;
+        get-position: func(symbol: string) -> option<position>;
+        log: func(msg: string);
+    }
+}
+
+///////////////////////////////////////////////////////////
+// Guest-implemented strategy logic
+///////////////////////////////////////////////////////////
+
+interface strategy {
+    use types.{kline};
+    use platform.{platform};
+
+    // Called once on load
+    init: func(p: platform, config: string) -> result<_, string>;
+
+    // Called at strategy start
+    on-start: func() -> result<_, string>;
+
+    // Called once per completed kline
+    on-kline: func(kline: kline) -> result<_, string>;
+
+}
+
+///////////////////////////////////////////////////////////
+// World definition
+///////////////////////////////////////////////////////////
+
+world quant {
+    // Host imports
+    import platform;
+
+    // Guest exports
+    export strategy;
+}
