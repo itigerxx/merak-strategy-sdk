@@ -19,3 +19,10 @@ pub struct Kline {
     pub volume: f64,
     pub timestamp: u64,
 }
+
+// --- 3. 预导出的常用项 (Prelude) ---
+pub mod prelude {
+    pub use crate::{MerakStrategy, Kline};
+    pub use serde::{Serialize, Deserialize};
+    pub use schemars::JsonSchema;
+}
