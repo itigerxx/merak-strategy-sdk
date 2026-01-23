@@ -8,6 +8,7 @@ wit_bindgen::generate!({
     path: "./wit/strategy.wit", // 注意确保路径正确
     world: "quant",
     generate_all,
+    disable_custom_section_link_helpers: true,
 });
 
 // 重新导出生成的类型
