@@ -1,8 +1,10 @@
+#[macro_use]
 pub mod bindings {
     // 整个项目唯一的 generate!
     wit_bindgen::generate!({
         path: "./wit/strategy.wit",
         world: "quant",
+        pub_export_macro: true, // 明确要求导出宏
     });
 }
 
