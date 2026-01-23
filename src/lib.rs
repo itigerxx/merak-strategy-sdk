@@ -10,14 +10,14 @@ pub fn __init_context<P>(p: P, config: String) where P: Send + Sync + 'static {
     let _ = CONFIG_STR.set(config);
 }
 
-// 3. 策略必须实现的接口 (泛型 TKline 为了兼容未来不同的 WIT 类型)
+// 3. 策略必须实现的接口
 pub trait MerakStrategy<TKline> {
     fn on_start() -> Result<(), String>;
     fn on_kline(kline: TKline) -> Result<(), String>;
 }
 
-// 4. 基础 JSON 工具
+// 4. 配置解析工具
 pub fn read_config<T: serde::de::DeserializeOwned>() -> Result<T, String> {
     let raw = CONFIG_STR.get().ok_or("Config not init")?;
-    serde_json::from_str(raw).map_err(|e| e.to_string())
+    serde_json::from_str(raw).map_err(|e| format!("JSON Error: {}", e))
 }
