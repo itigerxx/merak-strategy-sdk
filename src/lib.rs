@@ -1,17 +1,21 @@
-// 1. 生成绑定
-// 我们不指定具体的生成模式，让它根据 target 自动适配
-wit_bindgen::generate!({
-    path: "./wit/strategy.wit",
-});
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
-// 2. 统一导出类型
-// 这样用户只需要 use merak_sdk::*; 就能拿到所有东西
-pub use exports::merak::strategy::strategy::{Kline, Platform, Guest};
+pub trait MerakStrategy {
+    fn on_start() -> Result<(), String> { Ok(()) }
+    fn on_kline(_kline: Kline) -> Result<(), String> { Ok(()) }
+}
 
-/// 辅助宏：为了让用户在 strategy.rs 里写代码更方便
-/// 我们把常用的 derive 宏也通过 SDK 暴露出去
-pub mod prelude {
-    pub use serde::{Serialize, Deserialize};
-    pub use schemars::JsonSchema;
-    pub use crate::{Kline, Platform, Guest};
+/// OHLCV K线数据结构
+/// 这个定义必须与 strategy.wit 中的 record kline 保持字段一一对应
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "camelCase")] // 建议与前端/API保持一致的命名风格
+pub struct Kline {
+    pub symbol: String,
+    pub open: f64,
+    pub high: f64,
+    pub low: f64,
+    pub close: f64,
+    pub volume: f64,
+    pub timestamp: u64,
 }
