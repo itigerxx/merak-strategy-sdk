@@ -6,6 +6,8 @@ use std::sync::{OnceLock, RwLock};
 // 1. 生成 WIT 绑定（包含 Kline 和 Platform 定义）
 wit_bindgen::generate!({
     path: "./wit/strategy.wit", // 注意确保路径正确
+    world: "quant",
+    generate_all,
 });
 
 // 重新导出生成的类型
