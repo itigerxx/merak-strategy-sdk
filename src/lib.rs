@@ -4,11 +4,12 @@ pub mod bindings {
         path: "./wit/strategy.wit",
         world: "quant",
         pub_export_macro: true, // 明确要求导出宏
+        export_macro_name: "export_strategy", // 给宏起个独一无二的名字，防止冲突
     });
 }
 
 #[doc(inline)]
-pub use bindings::export;
+pub use bindings::export_strategy;
 
 pub use bindings::merak::strategy::types::*;
 pub use bindings::merak::strategy::platform::Platform;
